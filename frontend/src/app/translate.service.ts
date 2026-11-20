@@ -29,7 +29,9 @@ export class TranslateService {
     } catch (err) {
       // Turn HTTP errors into a friendly message from the Worker, if it sent one.
       if (err instanceof HttpErrorResponse) {
-        const message = typeof err.error?.error === 'string' ? err.error.error : null;
+        const base = typeof err.error?.error === 'string' ? err.error.error : null;
+        const failed = Array.isArray(err.error?.failed) ? ` (${err.error.failed.join(', ')})` : '';
+        const message = base ? base + failed : null;
         throw new TranslateError(err.status, message ?? 'Could not reach the server. Check your connection.');
       }
       throw err;

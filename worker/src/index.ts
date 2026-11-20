@@ -78,9 +78,10 @@ async function handleTranslate(request: Request, env: AppEnv): Promise<Response>
       return json({ ...result, provider: provider.name });
     } catch (err) {
       // Logged to Cloudflare dashboard (Workers > your worker > Logs). User text is not logged.
-      const reason = err instanceof ProviderError ? `${err.provider} ${err.status}` : String(err);
+      const reason = err instanceof ProviderError ? `${err.status} ${err.message}` : String(err);
       console.warn(`Provider ${provider.name} failed: ${reason}`);
-      failures.push(provider.name);
+      // Status code only (no provider message) is safe to show and enough to debug.
+      failures.push(err instanceof ProviderError ? `${provider.name} ${err.status}` : `${provider.name} bad-output`);
     }
   }
 
@@ -91,8 +92,11 @@ async function handleTranslate(request: Request, env: AppEnv): Promise<Response>
 
 function buildProviders(env: AppEnv): Provider[] {
   const list: Provider[] = [];
-  if (env.GROQ_API_KEY) list.push(groqProvider(env.GROQ_API_KEY, env.GROQ_MODEL));
-  if (env.GEMINI_API_KEY) list.push(geminiProvider(env.GEMINI_API_KEY, env.GEMINI_MODEL));
+  // trim(): a key pasted with a trailing space or newline causes a 401.
+  const groqKey = env.GROQ_API_KEY?.trim();
+  const geminiKey = env.GEMINI_API_KEY?.trim();
+  if (groqKey) list.push(groqProvider(groqKey, env.GROQ_MODEL));
+  if (geminiKey) list.push(geminiProvider(geminiKey, env.GEMINI_MODEL));
   return list;
 }
 
