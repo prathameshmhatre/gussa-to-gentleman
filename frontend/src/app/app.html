@@ -1,0 +1,122 @@
+<header class="masthead">
+  <p class="kicker">Hindi gussa in, British manners out</p>
+  <h1>Gussa <span class="to">to</span> Gentleman</h1>
+  <p class="lede">Vent in Hindi or Hinglish. Get a British idiom and a polite reply you can actually send to the client.</p>
+</header>
+
+<main class="layout">
+  <section class="panel panel-in" aria-labelledby="in-title">
+    <h2 id="in-title">Dil ki baat</h2>
+
+    <label class="sr-only" for="rant">Your rant in Hindi or Hinglish</label>
+    <textarea
+      id="rant"
+      rows="5"
+      [value]="rant()"
+      (input)="onInput($event)"
+      (keydown.control.enter)="translate()"
+      (keydown.meta.enter)="translate()"
+      placeholder="Yaar ye client har din requirement badal deta hai…"
+    ></textarea>
+    <div class="meta-row">
+      <span [class.over]="charsLeft() < 0">{{ charsLeft() }} characters left</span>
+      <span class="hint">Ctrl + Enter to send</span>
+    </div>
+
+    <div class="examples" aria-label="Example rants">
+      <span class="examples-label">Try one:</span>
+      @for (ex of examples; track ex) {
+        <button type="button" class="chip" (click)="useExample(ex)">{{ ex }}</button>
+      }
+    </div>
+
+    <fieldset class="tones">
+      <legend>Reply tone</legend>
+      @for (t of tones; track t.id) {
+        <label class="tone" [class.active]="tone() === t.id">
+          <input type="radio" name="tone" [id]="'tone-' + t.id" [checked]="tone() === t.id" (change)="tone.set(t.id)" />
+          <span class="tone-label">{{ t.label }}</span>
+          <span class="tone-hint">{{ t.hint }}</span>
+        </label>
+      }
+    </fieldset>
+
+    <button type="button" class="primary" [disabled]="!canSubmit()" (click)="translate()">
+      @if (loading()) {
+        Brewing a polite reply…
+      } @else {
+        Make it British
+      }
+    </button>
+
+    <p class="privacy">Don't paste client names or confidential details. Rants are sent to an AI service to translate.</p>
+  </section>
+
+  <section class="panel panel-out" aria-labelledby="out-title" aria-live="polite">
+    <h2 id="out-title">What you'll send</h2>
+
+    @if (notice()) {
+      <p class="notice" role="status">{{ notice() }}</p>
+    }
+
+    @if (result(); as r) {
+      <div class="rage" [attr.aria-label]="'Rage level ' + r.rageLevel + ' of 5: ' + r.rageLabel">
+        <span class="cups" aria-hidden="true">
+          @for (c of cups; track c) {
+            <span class="cup" [class.full]="c <= r.rageLevel"></span>
+          }
+        </span>
+        <span class="rage-label">{{ r.rageLabel }}</span>
+      </div>
+
+      <dl class="result">
+        <div class="row">
+          <dt>What you really meant</dt>
+          <dd>{{ r.meaning }}</dd>
+        </div>
+        <div class="row idiom">
+          <dt>The British idiom</dt>
+          <dd>
+            <strong>“{{ r.idiom }}”</strong>
+            <span class="idiom-meaning">{{ r.idiomMeaning }}</span>
+          </dd>
+        </div>
+        <div class="row reply">
+          <dt>Reply to send</dt>
+          <dd>
+            <blockquote>{{ r.reply }}</blockquote>
+            <button type="button" class="secondary" (click)="copyReply()">
+              {{ copied() ? 'Copied!' : 'Copy reply' }}
+            </button>
+          </dd>
+        </div>
+      </dl>
+      <p class="source">Answered by: {{ r.provider === 'offline' ? 'offline phrasebook' : r.provider }}</p>
+    } @else {
+      <div class="empty">
+        <p class="empty-title">Keep calm and type your rant.</p>
+        <p>Your polite, very British reply will appear here.</p>
+      </div>
+    }
+  </section>
+
+  @if (history().length) {
+    <section class="panel history" aria-labelledby="hist-title">
+      <div class="history-head">
+        <h2 id="hist-title">Recent rants</h2>
+        <button type="button" class="link" (click)="clearHistory()">Clear</button>
+      </div>
+      <ul>
+        @for (h of history(); track h.rant) {
+          <li>
+            <button type="button" class="history-item" (click)="restore(h)">
+              <span class="h-rant">{{ h.rant }}</span>
+              <span class="h-idiom">{{ h.result.idiom }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+      <p class="privacy">Saved only in this browser.</p>
+    </section>
+  }
+</main>
