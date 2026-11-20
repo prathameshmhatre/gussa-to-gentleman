@@ -1,0 +1,9 @@
+# Copy this file to .dev.vars for local development (`npm run dev`).
+# .dev.vars is git-ignored. NEVER commit real keys.
+#
+# Groq key:   https://console.groq.com/keys
+# Gemini key: https://aistudio.google.com/apikey
+#
+# You need at least one of them. With both, Gemini is used when Groq fails.
+GROQ_API_KEY=
+GEMINI_API_KEY=

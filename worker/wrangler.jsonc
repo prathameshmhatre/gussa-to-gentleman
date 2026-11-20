@@ -1,0 +1,37 @@
+// Cloudflare Worker config.
+// One Worker does two jobs:
+//   1. Serves the built Angular app (static files) for every normal URL.
+//   2. Runs our code for /api/* so the AI keys stay on the server.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "gussa-to-gentleman",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+
+  // Static files: the output of `ng build` in ../frontend.
+  "assets": {
+    "directory": "../frontend/dist/frontend/browser",
+    "not_found_handling": "single-page-application",
+    // Only /api/* reaches the Worker code; everything else is served as a file.
+    "run_worker_first": ["/api/*"]
+  },
+
+  // Built-in rate limiter: 10 translations per minute per visitor (keyed by IP in src/index.ts).
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 10, "period": 60 }
+    }
+  ],
+
+  // Non-secret settings. Change model IDs here when providers retire them.
+  // Secrets (GROQ_API_KEY, GEMINI_API_KEY) are NOT here: set them with `wrangler secret put`.
+  "vars": {
+    "GROQ_MODEL": "llama-3.3-70b-versatile",
+    "GEMINI_MODEL": "gemini-3.5-flash-lite",
+    "MAX_INPUT_CHARS": "500"
+  },
+
+  "observability": { "enabled": true }
+}
