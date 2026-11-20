@@ -20,7 +20,10 @@ export function groqProvider(apiKey: string, model: string): Provider {
             { role: 'user', content: userText },
           ],
           temperature: 0.7,
-          max_tokens: 400,
+          // Reasoning models (gpt-oss) spend tokens "thinking" before answering,
+          // so leave room and keep thinking short for a fast reply.
+          max_completion_tokens: 1200,
+          ...(model.startsWith('openai/gpt-oss') ? { reasoning_effort: 'low' } : {}),
           // JSON mode: asks the model to return a valid JSON object.
           response_format: { type: 'json_object' },
         }),

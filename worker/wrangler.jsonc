@@ -28,7 +28,7 @@
   // Non-secret settings. Change model IDs here when providers retire them.
   // Secrets (GROQ_API_KEY, GEMINI_API_KEY) are NOT here: set them with `wrangler secret put`.
   "vars": {
-    "GROQ_MODEL": "llama-3.3-70b-versatile",
+    "GROQ_MODEL": "openai/gpt-oss-120b",
     "GEMINI_MODEL": "gemini-3.5-flash-lite",
     "MAX_INPUT_CHARS": "500"
   },
